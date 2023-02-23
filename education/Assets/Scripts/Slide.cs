@@ -13,7 +13,7 @@ public class Slide : MonoBehaviour
     private Rigidbody2D _rb2d;
 
     private Vector2 _groundNormal;
-     private Vector2 _targetVelocity;
+    private Vector2 _targetVelocity;
     private bool _grounded;
     private ContactFilter2D _contactFilter;
     private RaycastHit2D[] _hitBuffer = new RaycastHit2D[16];
@@ -39,6 +39,7 @@ public class Slide : MonoBehaviour
         Vector2 alongSurface = Vector2.Perpendicular(_groundNormal);
 
         _targetVelocity = alongSurface * _speed;
+
     }
 
     void FixedUpdate()
@@ -50,6 +51,14 @@ public class Slide : MonoBehaviour
 
         Vector2 deltaPosition = _velocity * Time.deltaTime;
         Vector2 moveAlongGround = new Vector2(_groundNormal.y, -_groundNormal.x);
+        if (_groundNormal.x > 0)
+        {
+            moveAlongGround *= -1;
+        }
+        if (_groundNormal.x == 0)
+        {
+            moveAlongGround *= 0;
+        }
         Vector2 move = moveAlongGround * deltaPosition.x;
 
         Movement(move, false);
@@ -76,6 +85,7 @@ public class Slide : MonoBehaviour
 
             for (int i = 0; i < _hitBufferList.Count; i++)
             {
+
                 Vector2 currentNormal = _hitBufferList[i].normal;
                 if (currentNormal.y > _minGroundNormalY)
                 {
@@ -86,6 +96,7 @@ public class Slide : MonoBehaviour
                         currentNormal.x = 0;
                     }
                 }
+                
 
                 float projection = Vector2.Dot(_velocity, currentNormal);
                 if (projection < 0)
@@ -94,10 +105,10 @@ public class Slide : MonoBehaviour
                 }
 
                 float modifiedDistance = _hitBufferList[i].distance - ShellRadius;
+
                 distance = modifiedDistance < distance ? modifiedDistance : distance;
             }
         }
-
         _rb2d.position = _rb2d.position + move.normalized * distance;
     }
 }
